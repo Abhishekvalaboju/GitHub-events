@@ -1,1 +1,5 @@
-// dummy comment
+package main
+
+func dummy() {
+
+}
