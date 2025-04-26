@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -13,16 +14,29 @@ import (
 
 // Structs to decode GitHub webhook payload
 type WorkflowRun struct {
-	ID         int64  `json:"id"`
-	Name       string `json:"name"`
-	Status     string `json:"status"`
-	Conclusion string `json:"conclusion"`
-	RunNumber  int    `json:"run_number"`
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Status      string    `json:"status"`
+	Conclusion  string    `json:"conclusion"`
+	RunNumber   int       `json:"run_number"`
+	StartedAt   time.Time `json:"started_at"`
+	CompletedAt time.Time `json:"completed_at"`
 }
 
-type GitHubWorkflowPayload struct {
-	Action      string      `json:"action"`
-	WorkflowRun WorkflowRun `json:"workflow_run"`
+type WorkflowJob struct {
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Status      string    `json:"status"`
+	Conclusion  string    `json:"conclusion"`
+	RunNumber   int       `json:"run_number"`
+	StartedAt   time.Time `json:"started_at"`
+	CompletedAt time.Time `json:"completed_at"`
+}
+
+type GitHubWebhookPayload struct {
+	Action      string       `json:"action"`
+	WorkflowRun *WorkflowRun `json:"workflow_run,omitempty"`
+	WorkflowJob *WorkflowJob `json:"workflow_job,omitempty"`
 }
 
 // Prometheus metrics
@@ -68,7 +82,7 @@ func webhookHandler(c *gin.Context) {
 
 	fmt.Println("Raw Payload: ", string(body))
 
-	var payload GitHubWorkflowPayload
+	var payload GitHubWebhookPayload
 
 	// Decode the incoming JSON payload
 	if err := c.ShouldBindJSON(&payload); err != nil {
@@ -76,7 +90,7 @@ func webhookHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 		return
 	}
-
+	fmt.Println("\n\npayload : ", payload)
 	workflowName := payload.WorkflowRun.Name
 
 	mu.Lock()
