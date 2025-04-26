@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync"
 
@@ -58,6 +59,15 @@ func init() {
 }
 
 func webhookHandler(c *gin.Context) {
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	fmt.Println("Raw Payload: ", string(body))
+
 	var payload GitHubWorkflowPayload
 
 	// Decode the incoming JSON payload
@@ -100,6 +110,8 @@ func main() {
 
 	r.POST("/webhook", webhookHandler)
 	r.GET("/metrics", metricsHandler)
-
+	r.GET("/readyness", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
