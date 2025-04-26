@@ -59,7 +59,7 @@ func init() {
 }
 
 func webhookHandler(c *gin.Context) {
-
+	fmt.Println("\n\n\n\n Running Webhook")
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
