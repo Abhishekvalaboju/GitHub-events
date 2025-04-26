@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -34,9 +35,9 @@ type WorkflowJob struct {
 }
 
 type GitHubWebhookPayload struct {
-	Action      string       `json:"action"`
-	WorkflowRun *WorkflowRun `json:"workflow_run,omitempty"`
-	WorkflowJob *WorkflowJob `json:"workflow_job,omitempty"`
+	Action      string      `json:"action"`
+	WorkflowRun WorkflowRun `json:"workflow_run,omitempty"`
+	WorkflowJob WorkflowJob `json:"workflow_job,omitempty"`
 }
 
 // Prometheus metrics
@@ -81,9 +82,14 @@ func webhookHandler(c *gin.Context) {
 	}
 
 	fmt.Println("Raw Payload: ", string(body))
-
 	var payload GitHubWebhookPayload
+	var payload2 GitHubWebhookPayload
 
+	err = json.Unmarshal(body, &payload2)
+	if err != nil {
+		fmt.Println("\n\n error in unmarshal : ", err)
+	}
+	fmt.Println("\n\n Payload unmarshal : ", payload)
 	// Decode the incoming JSON payload
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		fmt.Println("error in payload binding: ", err)
