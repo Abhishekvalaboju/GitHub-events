@@ -72,6 +72,7 @@ func webhookHandler(c *gin.Context) {
 
 	// Decode the incoming JSON payload
 	if err := c.ShouldBindJSON(&payload); err != nil {
+		fmt.Println("error in payload binding: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 		return
 	}
