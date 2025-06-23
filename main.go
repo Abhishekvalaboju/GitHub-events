@@ -538,6 +538,7 @@ func processWorkflowRun(payload GitHubWebhookPayload) {
 	workflowStatus.WithLabelValues(strconv.Itoa(run.RunNumber), run.Name, payload.Repository.FullName).Set(status)
 }
 func getRunNumber(ctx context.Context, payload GitHubWebhookPayload) (int, error) {
+
 	cacheMu.RLock()
 	if info, ok := runIDCache[payload.WorkflowJob.RunID]; ok {
 		cacheMu.RUnlock()
@@ -545,11 +546,12 @@ func getRunNumber(ctx context.Context, payload GitHubWebhookPayload) (int, error
 	}
 	cacheMu.RUnlock()
 
-	run, err := fetchRunNumber(ctx, payload.WorkflowJob.RunID)
-	if err != nil {
-		return 0, err
-	}
-	return run.RunNumber, nil
+	//run, err := fetchRunNumber(ctx, payload.WorkflowJob.RunID)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//return run.RunNumber, nil
+	return 0, nil
 }
 func isPayloadOld(payload GitHubWebhookPayload) bool {
 	cutoff := time.Now().Add(-7 * 24 * time.Hour)
